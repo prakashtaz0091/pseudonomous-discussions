@@ -1,0 +1,8 @@
+*.py[co]
+.DS_Store
+*.log
+db.sqlite3
+__pycache__/
+local_settings.py
+media/
+
