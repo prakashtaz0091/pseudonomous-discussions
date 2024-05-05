@@ -43,6 +43,7 @@
 
       <div class="container">
         <h5>Discussion Rooms</h5>
+        <input type="hidden" id="base_url" value="{% url 'chat:room' %}" >
         <div id="rooms"></div>
       </div>
     </div>
@@ -53,7 +54,7 @@
     <script>
       document.querySelector('#discussion_room_id').focus()
       const indexSocket = new WebSocket('ws://' + window.location.host + '/ws/index/')
-      
+      const base_url = document.querySelector("#base_url").value
       document.querySelector('#discussion_room_id_submit').onclick = function (e) {
         const discussion_room_id_InputDom = document.querySelector('#discussion_room_id')
         const discussion_room_id = discussion_room_id_InputDom.value
@@ -82,8 +83,15 @@
         const roomsEl = document.querySelector("#rooms")
         roomsEl.innerHTML = ""
         for(let i=0; i<rooms.length; i++){
+          //<a class="room_link" href="${base_url+rooms[i].name}" >${rooms[i].name} | ${rooms[i].created_at}</a> 
           let roomEl = `
-              <a class="room_link" >${rooms[i].name} | ${rooms[i].created_at}</a> </br>
+              <form action="${base_url}">
+                <input type="hidden" value="${rooms[i].name}" name="room_name"/>
+                <label>${rooms[i].name}</label>
+                <Button onclick="enterRoom()" >Enter Room</Button>
+              </form>
+            
+            </br>
 
           `
           roomsEl.innerHTML += roomEl
@@ -93,6 +101,13 @@
       function showError(data){
         const errorEl = document.querySelector("#error")
         errorEl.innerText = data.error
+      }
+
+      function enterRoom(){
+        console.log("closing")
+        indexSocket.close()
+        console.log("closed")
+
       }
 
     </script>
