@@ -11,4 +11,4 @@ def index(request):
 def room(request):
     room_name = request.GET.get("room_name", None)
     room = models.DiscussionRoom.objects.get(name=room_name)
-    return render(request, "chat/room.html",{"room_id": room.id})
+    return render(request, "chat/room.html",{"room": room})

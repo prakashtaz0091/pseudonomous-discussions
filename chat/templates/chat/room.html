@@ -2,23 +2,67 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Chat Room</title>
+    <title>Discussion Room</title>
+    <style>
+      .content {
+        max-width: 600px;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        #chat-log,
+        input {
+          width: 90%;
+          max-width: inherit;
+          border: 1px solid gray;
+          margin: 8px auto;
+          padding: 10px;
+          border-radius: 10px;
+        }
+      
+        input:focus {
+          outline: none;
+        }
+      
+        #chat-log {
+          height: 60vh;
+          overflow-y: scroll;
+        }
+        .chat-message {
+          background-color: lightblue;
+          padding: 10px;
+          margin: 6px;
+          border-radius: 6px;
+          list-style: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br />
-    <input id="chat-message-input" type="text" size="100" /><br />
-    <input id="chat-message-submit" type="button" value="Send" />
-    {{ room_id|json_script:'room-name' }}
+    <div class="content">
+      <h1>{{ room.name }}</h1>
+      <div id="chat-log">Discussions will appear here</div>
+      <input id="chat-message-input" type="text" size="100" />
+      <input id="chat-message-submit" type="button" value="Send" />
+    </div>
+    {{ room.id|json_script:'room-name' }}
     <script>
       const roomName = JSON.parse(document.getElementById('room-name').textContent)
-
-
+      
       const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/')
       
       chatSocket.onmessage = function (e) {
+        const messageSection = document.querySelector('#chat-log')
+        if (messageSection.innerText == 'Discussions will appear here') {
+          messageSection.innerText = ''
+        }
         const data = JSON.parse(e.data)
-        document.querySelector('#chat-log').value += data.data.message + '\n'
-         {% comment %} + data.data.sent_by + '\n' {% endcomment %}
+        messageSection.innerHTML += `
+                                                                                                                      <li class="chat-message" >${data.data.message}</li>
+                                                                                                                    
+                                                                                                                    `
+      
+        scrollToBottom()
       }
       
       chatSocket.onclose = function (e) {
@@ -42,6 +86,12 @@
           })
         )
         messageInputDom.value = ''
+      }
+      
+      // JavaScript function to scroll to the bottom of the chatbox
+      function scrollToBottom() {
+        var chatbox = document.getElementById('chat-log')
+        chatbox.scrollTop = chatbox.scrollHeight
       }
     </script>
   </body>
